@@ -124,3 +124,22 @@ class DeleteRequest(APIView):
         request_object.save()
         serializer = RequestSerializer(request_object)
         return Response(serializer.data)
+
+
+class RequestTest(APIView):
+    "delete request"
+
+    def get_object(self, request):
+        try:
+            request_obeject = Request.objects.get(
+                requestId=request.data['requestId'])
+            return request_obeject
+        except Request.DoesNotExist:
+            raise Http404
+
+    def put(self, request, format=None):
+        request_object = self.get_object(request)
+        request_object.isDeleted = True
+        request_object.save()
+        serializer = RequestSerializer(request_object)
+        return Response(serializer.data)
