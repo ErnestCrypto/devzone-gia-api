@@ -2,7 +2,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.urls import path
 from . import views
-app_name = "giaAppUrls"
+app_name = "apiUrls"
 
 
 urlpatterns = [
