@@ -21,5 +21,5 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('giaAPI/', include('giaApp.urls', namespace="apiUrls"))
+    path('giaAPI/', include('endpoints.urls', namespace="endpoints"))
 ]
