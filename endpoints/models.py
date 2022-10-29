@@ -45,7 +45,7 @@ class Users(models.Model):
         return str(self.memberId)
 
     class Meta:
-        ordering = ['createdOn']
+        ordering = ['-createdOn']
         verbose_name_plural = 'Users'
 
 
@@ -61,6 +61,9 @@ class Documents(models.Model):
 
     def __str__(self):
         self.id
+
+    class Meta:
+        verbose_name_plural = 'Documents'
 
 
 class Transactions(models.Model):
