@@ -28,7 +28,6 @@ class UserAdmin(admin.ModelAdmin):
         'withdrawalLimit',
         'withdrawalMade',
         'requestsMade',
-        'ghanaCardNumber',
         'isDeleted',
 
     ]

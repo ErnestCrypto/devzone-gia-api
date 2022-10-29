@@ -4,11 +4,12 @@ from .models import Request, Users, Transactions, Documents
 
 
 class DocumentsSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(many=False)
 
     class Meta:
         model = Documents
-        fields = '__all__'
+        fields = ('ghanaCardNumber',
+                  'frontCardPic',
+                  'backCardPic',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,7 +39,6 @@ class UserSerializer(serializers.ModelSerializer):
                   'withdrawalLimit',
                   'withdrawalMade',
                   'requestsMade',
-                  'ghanaCardNumber',
                   'isDeleted',
                   'documents'
                   )

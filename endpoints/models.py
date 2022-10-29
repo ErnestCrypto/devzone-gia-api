@@ -39,7 +39,6 @@ class Users(models.Model):
     withdrawalLimit = models.CharField(max_length=255, default='2')
     withdrawalMade = models.CharField(max_length=255, default='0')
     requestsMade = models.CharField(max_length=255, default='0')
-    ghanaCardNumber = models.CharField(max_length=255, default=None)
     isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
