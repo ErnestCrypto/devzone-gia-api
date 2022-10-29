@@ -50,7 +50,7 @@ class Users(models.Model):
 
 
 class Documents(models.Model):
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         Users, related_name='documents', on_delete=models.CASCADE, null=True, blank=True, unique=True)
     ghanaCardNumber = models.CharField(
         max_length=255, default=None, null=True, blank=True)
