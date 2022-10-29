@@ -43,6 +43,15 @@ class UserSerializer(serializers.ModelSerializer):
                   'documents'
                   )
 
+    def create(self, validated_data):
+        docuements_data = validated_data.pop('documents')
+        user = Users.objects.create(**validated_data)
+
+        for document in docuements_data:
+            Documents.objects.create(user=user, **document)
+
+        return user
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
