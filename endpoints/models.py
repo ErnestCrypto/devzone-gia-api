@@ -52,10 +52,13 @@ class Users(models.Model):
 
 class Documents(models.Model):
     user = models.ForeignKey(
-        Users, related_name='documents', on_delete=models.CASCADE)
-    ghanaCardNumber = models.CharField(max_length=255, default=None)
-    frontCardPic = models.CharField(max_length=255, default=None)
-    backCardPic = models.CharField(max_length=255, default=None)
+        Users, related_name='documents', on_delete=models.CASCADE, null=True, blank=True)
+    ghanaCardNumber = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
+    frontCardPic = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
+    backCardPic = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
 
     def __str__(self):
         self.id
