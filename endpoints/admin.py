@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Transactions, Request
+from .models import Users, Transactions, Request, Documents
 # Register your models here.
 
 
@@ -32,6 +32,15 @@ class UserAdmin(admin.ModelAdmin):
         'isDeleted',
 
     ]
+
+
+@admin.register(Documents)
+class DocumentsAdmin(admin.ModelAdmin):
+    list_display = ['user',
+                    'ghanaCardNumber',
+                    'frontCardPic',
+                    'backCardPic',
+                    ]
 
 
 @admin.register(Transactions)

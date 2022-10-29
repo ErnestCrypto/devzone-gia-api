@@ -50,6 +50,17 @@ class Users(models.Model):
         verbose_name_plural = 'Users'
 
 
+class Documents(models.Model):
+    user = models.ForeignKey(
+        Users, related_name='documents', on_delete=models.CASCADE)
+    ghanaCardNumber = models.CharField(max_length=255, default=None)
+    frontCardPic = models.CharField(max_length=255, default=None)
+    backCardPic = models.CharField(max_length=255, default=None)
+
+    def __str__(self):
+        self.id
+
+
 class Transactions(models.Model):
     transactionId = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
