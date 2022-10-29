@@ -12,7 +12,7 @@ class DocumentsSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    documents = DocumentsSerializer(many=True, read_only=True)
+    documents = DocumentsSerializer(many=True)
 
     class Meta:
         model = Users
