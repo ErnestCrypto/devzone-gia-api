@@ -13,7 +13,7 @@ class DocumentsSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    documents = DocumentsSerializer(many=True)
+    documents = DocumentsSerializer(many=False)
 
     class Meta:
         model = Users
@@ -44,11 +44,9 @@ class UserSerializer(serializers.ModelSerializer):
                   )
 
     def create(self, validated_data):
-        docuements_data = validated_data.pop('documents')
+        documents_data = validated_data.pop('documents')
         user = Users.objects.create(**validated_data)
-
-        for document in docuements_data:
-            Documents.objects.create(user=user, **document)
+        Documents.objects.create(user=user, **documents_data)
 
         return user
 

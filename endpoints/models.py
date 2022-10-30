@@ -51,7 +51,7 @@ class Users(models.Model):
 
 class Documents(models.Model):
     user = models.OneToOneField(
-        Users, related_name='documents', on_delete=models.CASCADE, null=True, blank=True, unique=True)
+        Users, related_name='documents', on_delete=models.CASCADE)
     ghanaCardNumber = models.CharField(
         max_length=255, default=None, null=True, blank=True)
     frontCardPic = models.CharField(
@@ -60,7 +60,7 @@ class Documents(models.Model):
         max_length=255, default=None, null=True, blank=True)
 
     def __str__(self):
-        self.id
+        return str(self.id)
 
     class Meta:
         verbose_name_plural = 'Documents'

@@ -6,6 +6,7 @@ from .models import Users, Transactions, Request, Documents
 @admin.register(Users)
 class UserAdmin(admin.ModelAdmin):
     list_display = [
+
         'memberId',
         'firstname',
         'lastname',
