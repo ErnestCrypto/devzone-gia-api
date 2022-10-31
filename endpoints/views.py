@@ -3,7 +3,7 @@ from logging import raiseExceptions
 import re
 from django.shortcuts import render
 from .models import Users, Transactions, Request, Documents
-from .serializers import UserSerializer, TransactionSerializer, RequestSerializer, PersonalDetails
+from .serializers import UserSerializer, TransactionSerializer, RequestSerializer, PersonalDetails, UpdateRequestSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -307,7 +307,7 @@ class UpdateRequest(APIView):
 
     def put(self, request, format=None):
         request_object = self.get_object(request)
-        serializer = RequestSerializer(data=request.data)
+        serializer = UpdateRequestSerializer(data=request.data)
         user = self.get_user(request)
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")

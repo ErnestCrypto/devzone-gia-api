@@ -88,7 +88,8 @@ class Transactions(models.Model):
 class Request(models.Model):
     requestId = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
-    createdOn = models.DateTimeField(auto_now_add=True)
+    createdOn = models.DateTimeField(
+        auto_now_add=True)
     updateOn = models.CharField(
         max_length=255, default=None, blank=True, null=True)
     status = models.CharField(

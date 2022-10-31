@@ -67,3 +67,9 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = '__all__'
+
+
+class UpdateRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        exclude = ('memberId',)
