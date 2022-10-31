@@ -2,7 +2,7 @@
 import re
 from django.shortcuts import render
 from .models import Users, Transactions, Request
-from .serializers import UserSerializer, TransactionSerializer, RequestSerializer
+from .serializers import UserSerializer, TransactionSerializer, RequestSerializer, PersonalDetails
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -68,10 +68,47 @@ class UpdatePin(APIView):
 
     def put(self, request, format=None):
         users = self.get_object(request)
-        new_pin = request.data['pin']
-        users.pin = new_pin
-        users.save()
+        serializer = PersonalDetails(data=request.data)
+        if serializer.is_valid():
+            try:
+                new_pin = request.data['pin']
+                users.pin = new_pin
+                users.save()
+            except:
+                Exception("Could not save")
+        else:
+            Exception("Invalid data")
         serializer = UserSerializer(users)
+        return Response(serializer.data)
+
+
+class UpdateUser(APIView):
+    "update a users pin"
+
+    def get_object(self, request):
+        try:
+            return Users.objects.get(memberId=request.data['memberId'])
+        except Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, format=None):
+        users = self.get_object(request)
+        serializer = PersonalDetails(
+            data=request.data)
+        if serializer.is_valid():
+            try:
+                users.firstname = request.data['firstname']
+                users.lastname = request.data['lastname']
+                users.dob = request.data['dob']
+                users.gender = request.data['gender']
+                users.memberType = request.data['memberType']
+                users.profileImage = request.data['profileImage']
+                users.save()
+            except:
+                raise Exception('Could not save')
+        else:
+            raise Exception("Invalid data")
+        serializer = PersonalDetails(users)
         return Response(serializer.data)
 
 

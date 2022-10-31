@@ -7,7 +7,7 @@
     "purpose": "buy",
     "reason": "cars",
     "type": "business",
-    "memberId": "GIA-93140087056380906936"
+    "memberId": "GIA-118940529911204028031"
 }
 
 
@@ -37,3 +37,16 @@
 {
     "requestId": "41ba8f80-bb97-4c4f-b493-0247f95b7cae"
 }
+
+
+# update user profile
+
+
+{"memberId": "GIA-118940529911204028031",
+    "firstname": "Kelvin",
+    "lastname": "Akoto Bamfo",
+    "dob": "12th september",
+    "gender": "male",
+    "memberType": "student",
+    "profileImage": "url"
+ }

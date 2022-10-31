@@ -1,15 +1,21 @@
 # writing our serializer classes to
+from dataclasses import field
 from rest_framework import serializers
 from .models import Request, Users, Transactions, Documents
 
 
 class DocumentsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Documents
         fields = ('ghanaCardNumber',
                   'frontCardPic',
                   'backCardPic',)
+
+
+class PersonalDetails(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
