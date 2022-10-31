@@ -64,3 +64,22 @@
 # delete user
 {"memberId": "GIA-118940529911204028031"
  }
+
+# update user phone phoneNumber
+
+{"memberId": "GIA-118940529911204028031",
+ "phoneNumber": "0255421892"
+
+ }
+
+
+# update user documents
+{"memberId": "GIA-118940529911204028031",
+ "documents":
+    {
+        "ghanaCardNumber": "GHA-1938391892381921-0",
+        "frontCardPic": "kelvin",
+        "backCardPic": "kelvin"
+    }
+
+ }

@@ -1,7 +1,7 @@
 # creating our API views here
 import re
 from django.shortcuts import render
-from .models import Users, Transactions, Request
+from .models import Users, Transactions, Request, Documents
 from .serializers import UserSerializer, TransactionSerializer, RequestSerializer, PersonalDetails
 from django.http import Http404
 from rest_framework.views import APIView
@@ -116,6 +116,36 @@ class UpdateEmail(APIView):
         return Response(serializer.data)
 
 
+class UpdateUserPhoneNumber(APIView):
+    "update a users phone number"
+
+    def get_object(self, request):
+        try:
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
+        except Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, format=None):
+        users = self.get_object(request)
+        serializer = PersonalDetails(data=request.data)
+        if serializer.is_valid():
+            try:
+
+                users.phoneNumber = request.data['phoneNumber']
+                users.save()
+
+            except:
+                Exception("Could not save")
+        else:
+            Exception("Invalid data")
+        serializer = UserSerializer(users)
+        return Response(serializer.data)
+
+
 class UpdateUser(APIView):
     "update a users pin"
 
@@ -146,7 +176,46 @@ class UpdateUser(APIView):
                 raise Exception('Could not save')
         else:
             raise Exception("Invalid data")
-        serializer = PersonalDetails(users)
+        serializer = UserSerializer(users)
+        return Response(serializer.data)
+
+
+class UpdateUserDocuments(APIView):
+    "update a users documents"
+
+    def get_object(self, request):
+        try:
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
+        except Users.DoesNotExist:
+            raise Http404
+
+    def get_document(self, request):
+        try:
+            user = self.get_object(request)
+            if user.isDeleted == False:
+                document = Documents.objects.get(user=request.data['memberId'])
+                return document
+            else:
+                raise Http404
+        except Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, format=None):
+        document = self.get_document(request)
+        users = self.get_object(request)
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            document.ghanaCardNumber = request.data['documents']['ghanaCardNumber']
+            document.frontCardPic = request.data['documents']['frontCardPic']
+            document.backCardPic = request.data['documents']['backCardPic']
+            document.save()
+        else:
+            Exception("Invalid data")
+        serializer = UserSerializer(users)
         return Response(serializer.data)
 
 

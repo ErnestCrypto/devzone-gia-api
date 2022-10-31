@@ -11,6 +11,8 @@ urlpatterns = [
     path('updateUser/', views.UpdateUser.as_view()),
     path('updateUserPin/', views.UpdatePin.as_view()),
     path('updateUserEmail/', views.UpdateEmail.as_view()),
+    path('updateUserDocuments/', views.UpdateUserDocuments.as_view()),
+    path('updateUserphoneNumber/', views.UpdateUserPhoneNumber.as_view()),
     path('deleteUser/', views.DeleteUser.as_view()),
     path('requests/', views.RequestList.as_view()),
     path('requestbyId/', views.RequestById.as_view()),

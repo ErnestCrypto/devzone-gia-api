@@ -5,3 +5,6 @@
 #virtual environment
 venv
 api/.env
+
+#testing json_data files
+json_data.py
