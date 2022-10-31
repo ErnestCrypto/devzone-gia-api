@@ -307,7 +307,6 @@ class UpdateRequest(APIView):
         serializer = RequestSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                request_object.updateOn = request.data['updateOn']
                 request_object.status = request.data['status']
                 request_object.amount = request.data['amount']
                 request_object.purpose = request.data['purpose']
