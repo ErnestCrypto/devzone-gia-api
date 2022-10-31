@@ -62,7 +62,11 @@ class UpdatePin(APIView):
 
     def get_object(self, request):
         try:
-            return Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
         except Users.DoesNotExist:
             raise Http404
 
@@ -71,9 +75,39 @@ class UpdatePin(APIView):
         serializer = PersonalDetails(data=request.data)
         if serializer.is_valid():
             try:
-                new_pin = request.data['pin']
-                users.pin = new_pin
+                users.pin = request.data['pin']
                 users.save()
+
+            except:
+                Exception("Could not save")
+        else:
+            Exception("Invalid data")
+        serializer = UserSerializer(users)
+        return Response(serializer.data)
+
+
+class UpdateEmail(APIView):
+    "update a users Email"
+
+    def get_object(self, request):
+        try:
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
+        except Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, format=None):
+        users = self.get_object(request)
+        serializer = PersonalDetails(data=request.data)
+        if serializer.is_valid():
+            try:
+
+                users.email = request.data['email']
+                users.save()
+
             except:
                 Exception("Could not save")
         else:
@@ -87,7 +121,11 @@ class UpdateUser(APIView):
 
     def get_object(self, request):
         try:
-            return Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
         except Users.DoesNotExist:
             raise Http404
 

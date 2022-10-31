@@ -35,7 +35,7 @@
 
 # delete a request
 {
-    "requestId": "41ba8f80-bb97-4c4f-b493-0247f95b7cae"
+    "requestId": "3232edbd-567e-435c-9f82-5890bfc07743"
 }
 
 
@@ -49,4 +49,18 @@
     "gender": "male",
     "memberType": "student",
     "profileImage": "url"
+ }
+
+# update user pin info
+{"memberId": "GIA-118940529911204028031",
+ "pin": "123-tes@"
+ }
+
+# update user email info
+{"memberId": "GIA-118940529911204028031",
+ "email": "test@gmail.com"
+ }
+
+# delete user
+{"memberId": "GIA-118940529911204028031"
  }
