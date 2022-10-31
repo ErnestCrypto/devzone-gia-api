@@ -248,7 +248,6 @@ class RequestList(APIView):
     def post(self, request, format=None):
         serializer = RequestSerializer(data=request.data)
         user = self.get_user(request)
-
         if serializer.is_valid():
             serializer.save()
             filtered_requests = Request.objects.filter(
