@@ -76,12 +76,41 @@ class UpdatePin(APIView):
 
 
 class RequestList(APIView):
+    def get_object(self, request):
+        try:
+            request_obeject = Request.objects.get(
+                requestId=request.data['requestId'])
+            return request_obeject
+        except Request.DoesNotExist:
+            raise Http404
+
+    def get_user(self, request):
+        try:
+            request_object = self.get_object(request)
+            user = Users.objects.get(memberId=request_object.memberId)
+            if user.isDeleted == False:
+                return user
+            else:
+                raise("This user has been deleted")
+        except Users.DoesNotExist:
+            raise("Sorry User details not found")
+
     def get(self, request, format=None):
         requests = Request.objects.filter(isDeleted=False)
         serializer = RequestSerializer(requests, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        request_object = self.get_object(request)
+        request_object.updateOn = request.data['updateOn']
+        request_object.save()
+        user = self.get_user(request)
+        filtered_requests = Request.objects.filter(memberId=user.memberId)
+        array_request = []
+        for filtered_request in filtered_requests:
+            array_request.append(filtered_request.requestId)
+        user.requests = array_request
+        user.save()
         serializer = RequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
