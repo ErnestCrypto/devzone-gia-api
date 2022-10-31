@@ -1,4 +1,5 @@
 # creating our API views here
+from logging import raiseExceptions
 import re
 from django.shortcuts import render
 from .models import Users, Transactions, Request, Documents
@@ -7,7 +8,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import date
+from datetime import datetime
 
 
 class UsersList(APIView):
@@ -247,6 +248,7 @@ class RequestList(APIView):
     def post(self, request, format=None):
         serializer = RequestSerializer(data=request.data)
         user = self.get_user(request)
+
         if serializer.is_valid():
             serializer.save()
             filtered_requests = Request.objects.filter(
@@ -299,23 +301,25 @@ class UpdateRequest(APIView):
             if user.isDeleted == False:
                 return user
             else:
-                raise("This user has been deleted")
+                raise Exception("This user has been deleted")
         except Users.DoesNotExist:
-            raise("Sorry User details not found")
+            raise Exception("Sorry User details not found")
 
     def put(self, request, format=None):
         request_object = self.get_object(request)
         serializer = RequestSerializer(data=request.data)
+        user = self.get_user(request)
+        now = datetime.now()
+        dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
         if serializer.is_valid():
             try:
-                request_object.updateOn = date.today()
+                request_object.updateOn = dt_string
                 request_object.status = request.data['status']
                 request_object.amount = request.data['amount']
                 request_object.purpose = request.data['purpose']
                 request_object.reason = request.data['reason']
                 request_object.type = request.data['type']
                 request_object.save()
-                user = self.get_user(request)
             except:
                 raise Exception('Could not save')
             filtered_requests = Request.objects.filter(
@@ -325,7 +329,9 @@ class UpdateRequest(APIView):
                 array_request.append(filtered_request.requestId)
             user.requests = array_request
             user.save()
-        serializer = RequestSerializer(user)
+            serializer = RequestSerializer(request_object)
+        else:
+            raise Exception('invalid data')
         return Response(serializer.data)
 
 
