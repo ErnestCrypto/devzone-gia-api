@@ -7,6 +7,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import date
 
 
 class UsersList(APIView):
@@ -307,6 +308,7 @@ class UpdateRequest(APIView):
         serializer = RequestSerializer(data=request.data)
         if serializer.is_valid():
             try:
+                request_object.updateOn = date.today()
                 request_object.status = request.data['status']
                 request_object.amount = request.data['amount']
                 request_object.purpose = request.data['purpose']
