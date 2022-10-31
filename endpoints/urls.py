@@ -12,6 +12,7 @@ urlpatterns = [
     path('deleteUser/', views.DeleteUser.as_view()),
     path('requests/', views.RequestList.as_view()),
     path('requestbyId/', views.RequestById.as_view()),
+    path('updateRequest/', views.UpdateRequest.as_view()),
     path('deleteRequest/', views.DeleteRequest.as_view()),
 
 
