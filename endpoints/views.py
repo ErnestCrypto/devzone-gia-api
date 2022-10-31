@@ -304,17 +304,27 @@ class UpdateRequest(APIView):
 
     def put(self, request, format=None):
         request_object = self.get_object(request)
-        request_object.updateOn = request.data['updateOn']
-        request_object.save()
-        user = self.get_user(request)
-        filtered_requests = Request.objects.filter(
-            memberId=user.memberId, isDeleted=False)
-        array_request = []
-        for filtered_request in filtered_requests:
-            array_request.append(filtered_request.requestId)
-        user.requests = array_request
-        user.save()
-        serializer = RequestSerializer(request_object)
+        serializer = RequestSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                request_object.updateOn = request.data['updateOn']
+                request_object.status = request.data['status']
+                request_object.amount = request.data['amount']
+                request_object.purpose = request.data['purpose']
+                request_object.reason = request.data['reason']
+                request_object.type = request.data['type']
+                request_object.save()
+                user = self.get_user(request)
+            except:
+                raise Exception('Could not save')
+            filtered_requests = Request.objects.filter(
+                memberId=user.memberId, isDeleted=False)
+            array_request = []
+            for filtered_request in filtered_requests:
+                array_request.append(filtered_request.requestId)
+            user.requests = array_request
+            user.save()
+        serializer = RequestSerializer(user)
         return Response(serializer.data)
 
 
