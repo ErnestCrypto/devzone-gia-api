@@ -76,24 +76,15 @@ class UpdatePin(APIView):
 
 
 class RequestList(APIView):
-    def get_object(self, request):
-        try:
-            request_obeject = Request.objects.get(
-                requestId=request.data['requestId'])
-            return request_obeject
-        except Request.DoesNotExist:
-            raise Http404
-
     def get_user(self, request):
         try:
-            request_object = self.get_object(request)
-            user = Users.objects.get(memberId=request_object.memberId)
+            user = Users.objects.get(memberId=request.data['memberId'])
             if user.isDeleted == False:
                 return user
             else:
-                raise("This user has been deleted")
+                raise Http404
         except Users.DoesNotExist:
-            raise("Sorry User details not found")
+            raise Http404
 
     def get(self, request, format=None):
         requests = Request.objects.filter(isDeleted=False)
@@ -101,19 +92,17 @@ class RequestList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        request_object = self.get_object(request)
-        request_object.updateOn = request.data['updateOn']
-        request_object.save()
-        user = self.get_user(request)
-        filtered_requests = Request.objects.filter(memberId=user.memberId)
-        array_request = []
-        for filtered_request in filtered_requests:
-            array_request.append(filtered_request.requestId)
-        user.requests = array_request
-        user.save()
         serializer = RequestSerializer(data=request.data)
+        user = self.get_user(request)
         if serializer.is_valid():
             serializer.save()
+            filtered_requests = Request.objects.filter(
+                memberId=user.memberId, isDeleted=False)
+            array = []
+            for filtered_request in filtered_requests:
+                array.append(filtered_request)
+            user.requests = array
+            user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -160,7 +149,8 @@ class UpdateRequest(APIView):
         request_object.updateOn = request.data['updateOn']
         request_object.save()
         user = self.get_user(request)
-        filtered_requests = Request.objects.filter(memberId=user.memberId)
+        filtered_requests = Request.objects.filter(
+            memberId=user.memberId, isDeleted=False)
         array_request = []
         for filtered_request in filtered_requests:
             array_request.append(filtered_request.requestId)
@@ -188,15 +178,21 @@ class DeleteRequest(APIView):
             if user.isDeleted == False:
                 return user
             else:
-                raise("This user has been deleted")
+                raise Http404
         except Users.DoesNotExist:
-            raise("Sorry User details not found")
+            raise Http404
 
     def put(self, request, format=None):
         request_object = self.get_object(request)
         request_object.isDeleted = True
         request_object.save()
         user = self.get_user(request)
-
+        filtered_requests = Request.objects.filter(
+            memberId=user.memberId, isDeleted=False)
+        array_request = []
+        for filtered_request in filtered_requests:
+            array_request.append(filtered_request.requestId)
+        user.requests = array_request
+        user.save()
         serializer = RequestSerializer(request_object)
         return Response(serializer.data)
