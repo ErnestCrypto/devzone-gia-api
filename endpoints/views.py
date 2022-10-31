@@ -30,7 +30,11 @@ class UsersById(APIView):
 
     def get_object(self, request):
         try:
-            return Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
         except Users.DoesNotExist:
             raise Http404
 
@@ -45,7 +49,11 @@ class DeleteUser(APIView):
 
     def get_object(self, request):
         try:
-            return Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=request.data['memberId'])
+            if user.isDeleted == False:
+                return user
+            else:
+                raise Http404
         except Users.DoesNotExist:
             raise Http404
 
@@ -258,7 +266,10 @@ class RequestById(APIView):
         try:
             request_obeject = Request.objects.get(
                 requestId=request.data['requestId'])
-            return request_obeject
+            if request_obeject.isDeleted == False:
+                return request_obeject
+            else:
+                raise Http404
         except Request.DoesNotExist:
             raise Http404
 
@@ -273,7 +284,10 @@ class UpdateRequest(APIView):
         try:
             request_obeject = Request.objects.get(
                 requestId=request.data['requestId'])
-            return request_obeject
+            if request_obeject.isDeleted == False:
+                return request_obeject
+            else:
+                raise Http404
         except Request.DoesNotExist:
             raise Http404
 
@@ -311,7 +325,10 @@ class DeleteRequest(APIView):
         try:
             request_obeject = Request.objects.get(
                 requestId=request.data['requestId'])
-            return request_obeject
+            if request_obeject.isDeleted == False:
+                return request_obeject
+            else:
+                raise Http404
         except Request.DoesNotExist:
             raise Http404
 
