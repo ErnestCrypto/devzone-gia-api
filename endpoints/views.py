@@ -70,9 +70,9 @@ class DeleteUser(APIView):
 class UpdatePin(APIView):
     "update a users pin"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -80,10 +80,11 @@ class UpdatePin(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        users = self.get_object(request)
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
         serializer = PersonalDetails(data=request.data)
         if serializer.is_valid():
+
             try:
                 users.pin = request.data['pin']
                 users.save()
@@ -99,9 +100,9 @@ class UpdatePin(APIView):
 class UpdateEmail(APIView):
     "update a users Email"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -109,9 +110,9 @@ class UpdateEmail(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        users = self.get_object(request)
-        serializer = PersonalDetails(data=request.data)
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
+        serializer = PersonalDetails(users, data=request.data)
         if serializer.is_valid():
             try:
 
@@ -129,9 +130,9 @@ class UpdateEmail(APIView):
 class UpdateUserPhoneNumber(APIView):
     "update a users phone number"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -139,15 +140,13 @@ class UpdateUserPhoneNumber(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        users = self.get_object(request)
-        serializer = PersonalDetails(data=request.data)
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
+        serializer = PersonalDetails(users, data=request.data)
         if serializer.is_valid():
             try:
-
                 users.phoneNumber = request.data['phoneNumber']
                 users.save()
-
             except:
                 Exception("Could not save")
         else:
