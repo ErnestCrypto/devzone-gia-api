@@ -18,7 +18,8 @@ urlpatterns = [
     path('user/delete/<str:userId>/', views.DeleteUser.as_view()),
     path('user/recover/<str:userId>/', views.RecoverUser.as_view()),
     path('requests/', views.RequestList.as_view()),
-    path('requestbyId/', views.RequestById.as_view()),
+    path('requests/create/', views.RequestList.as_view()),
+    path('request/<str:requestId>/', views.RequestById.as_view()),
     path('updateRequest/', views.UpdateRequest.as_view()),
     path('deleteRequest/', views.DeleteRequest.as_view()),
 

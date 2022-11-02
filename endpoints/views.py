@@ -286,10 +286,10 @@ class RequestList(APIView):
 class RequestById(APIView):
     "get a request by Id"
 
-    def get_object(self, request):
+    def get_object(self, requestId):
         try:
             request_obeject = Request.objects.get(
-                requestId=request.data['requestId'])
+                requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
@@ -297,8 +297,8 @@ class RequestById(APIView):
         except Request.DoesNotExist:
             raise Http404
 
-    def post(self, request, format=None):
-        request_object = self.get_object(request)
+    def get(self, request, requestId, format=None):
+        request_object = self.get_object(requestId)
         serializer = RequestSerializer(request_object)
         return Response(serializer.data)
 
