@@ -19,6 +19,8 @@ class UsersList(APIView):
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
+
+class CreateUser(APIView):
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -49,19 +51,40 @@ class UsersById(APIView):
 class DeleteUser(APIView):
     "delete users by memberId"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
-                raise Http404
+                raise Exception("User already deleted")
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        users = self.get_object(request)
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
         users.isDeleted = True
+        users.save()
+        serializer = UserSerializer(users)
+        return Response(serializer.data)
+
+
+class RecoverUser(APIView):
+    "delete users by memberId"
+
+    def get_object(self, userId):
+        try:
+            user = Users.objects.get(memberId=userId)
+            if user.isDeleted == True:
+                return user
+            else:
+                raise Exception("User not deleted")
+        except Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
+        users.isDeleted = False
         users.save()
         serializer = UserSerializer(users)
         return Response(serializer.data)
