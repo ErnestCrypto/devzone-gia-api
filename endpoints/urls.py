@@ -6,12 +6,13 @@ app_name = "endpoints"
 
 
 urlpatterns = [
+    path('user/', views.UsersList.as_view()),
     path('users/', views.UsersList.as_view()),
-    path('userbyId/', views.UsersById.as_view()),
-    path('updateUser/', views.UpdateUser.as_view()),
+    path('user/<str:userId>/', views.UsersById.as_view()),
+    path('user/update/<str:userId>/', views.UpdateUser.as_view()),
     path('user/updatePin/<str:userId>/', views.UpdatePin.as_view()),
     path('user/updateEmail/<str:userId>/', views.UpdateEmail.as_view()),
-    path('updateUserDocuments/', views.UpdateUserDocuments.as_view()),
+    path('documents/update/<str:userId>/', views.UpdateUserDocuments.as_view()),
     path('user/updatePhone/<str:userId>/',
          views.UpdateUserPhoneNumber.as_view()),
     path('deleteUser/', views.DeleteUser.as_view()),

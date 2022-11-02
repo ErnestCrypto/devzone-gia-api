@@ -30,9 +30,9 @@ class UsersList(APIView):
 class UsersById(APIView):
     "get users by memberId"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -40,8 +40,8 @@ class UsersById(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def post(self, request, format=None):
-        users = self.get_object(request)
+    def get(self, request, userId, format=None):
+        users = self.get_object(userId)
         serializer = UserSerializer(users)
         return Response(serializer.data)
 
@@ -158,9 +158,9 @@ class UpdateUserPhoneNumber(APIView):
 class UpdateUser(APIView):
     "update a users pin"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -168,8 +168,8 @@ class UpdateUser(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        users = self.get_object(request)
+    def put(self, request, userId, format=None):
+        users = self.get_object(userId)
         serializer = PersonalDetails(
             data=request.data)
         if serializer.is_valid():
@@ -192,9 +192,9 @@ class UpdateUser(APIView):
 class UpdateUserDocuments(APIView):
     "update a users documents"
 
-    def get_object(self, request):
+    def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
@@ -202,21 +202,21 @@ class UpdateUserDocuments(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def get_document(self, request):
+    def get_document(self, userId):
         try:
-            user = self.get_object(request)
+            user = self.get_object(userId)
             if user.isDeleted == False:
-                document = Documents.objects.get(user=request.data['memberId'])
+                document = Documents.objects.get(user=userId)
                 return document
             else:
                 raise Http404
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        document = self.get_document(request)
-        users = self.get_object(request)
-        serializer = UserSerializer(data=request.data)
+    def put(self, request, userId, format=None):
+        document = self.get_document(userId)
+        users = self.get_object(userId)
+        serializer = UserSerializer(users, data=request.data)
         if serializer.is_valid():
             document.ghanaCardNumber = request.data['documents']['ghanaCardNumber']
             document.frontCardPic = request.data['documents']['frontCardPic']
