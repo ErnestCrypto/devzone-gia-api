@@ -7,35 +7,49 @@ from .models import Request, Users, Transactions, Documents, PhoneNumber, EmailA
 class EmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailAddress
-        fields = (
-            'type',
-            'email'
-        )
+        exclude = ('user',)
+
+
+class UpdateEmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailAddress
+        fields = '__all__'
 
 
 class PhoneNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhoneNumber
-        fields = ('type',
-                  'phoneNumber')
+        exclude = ('user',)
+
+
+class UpdatePhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = '__all__'
 
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ('houseNumber',
-                  'streetName',
-                  'city',
-                  'region',
-                  'digitalAdress')
+        exclude = ('user',)
+
+
+class UpdateAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
 
 
 class DocumentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documents
-        fields = ('ghanaCardNumber',
-                  'frontCardPic',
-                  'backCardPic',)
+        exclude = ('user',)
+
+
+class UpdateDocumentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documents
+        fields = '__all__'
 
 
 class PersonalDetails(serializers.ModelSerializer):
@@ -47,8 +61,8 @@ class PersonalDetails(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     email = EmailSerializer(many=False)
     documents = DocumentsSerializer(many=False)
+    address = AddressSerializer(many=False)
     phone = PhoneNumberSerializer(many=True)
-    address = AddressSerializer(many=True)
 
     class Meta:
         model = Users
@@ -89,11 +103,9 @@ class UserSerializer(serializers.ModelSerializer):
         user = Users.objects.create(**validated_data)
         Documents.objects.create(user=user, **documents_data)
         EmailAddress.objects.create(user=user, **emails_data)
-
+        Address.objects.create(user=user, **address_data)
         for p_data in phone_data:
             PhoneNumber.objects.create(user=user, **p_data)
-        for a_data in address_data:
-            Address.objects.create(user=user, **a_data)
 
         return user
 

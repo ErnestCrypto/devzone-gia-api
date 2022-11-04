@@ -1,9 +1,7 @@
 # creating our API views here
-from logging import raiseExceptions
-import re
 from django.shortcuts import render
-from .models import Users, Transactions, Request, Documents
-from .serializers import UserSerializer, TransactionSerializer, RequestSerializer, PersonalDetails, UpdateRequestSerializer
+from . import models
+from . import serializers
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,14 +13,12 @@ class UsersList(APIView):
     "List all the users or create a new user"
 
     def get(self, request, format=None):
-        users = Users.objects.filter(isDeleted=False)
-        serializer = UserSerializer(users, many=True)
+        users = models.Users.objects.filter(isDeleted=False)
+        serializer = serializers.UserSerializer(users, many=True)
         return Response(serializer.data)
 
-
-class CreateUser(APIView):
     def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
+        serializer = serializers.UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -35,17 +31,17 @@ class UsersById(APIView):
 
     def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def get(self, request, userId, format=None):
         users = self.get_object(userId)
-        serializer = UserSerializer(users)
+        serializer = serializers.UserSerializer(users)
         return Response(serializer.data)
 
 
@@ -54,19 +50,19 @@ class DeleteUser(APIView):
 
     def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Exception("User already deleted")
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
         users.isDeleted = True
         users.save()
-        serializer = UserSerializer(users)
+        serializer = serializers.UserSerializer(users)
         return Response(serializer.data)
 
 
@@ -75,19 +71,19 @@ class RecoverUser(APIView):
 
     def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == True:
                 return user
             else:
                 raise Exception("User not deleted")
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
         users.isDeleted = False
         users.save()
-        serializer = UserSerializer(users)
+        serializer = serializers. UserSerializer(users)
         return Response(serializer.data)
 
 
@@ -96,17 +92,17 @@ class UpdatePin(APIView):
 
     def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
-        serializer = PersonalDetails(data=request.data)
+        serializer = serializers.PersonalDetails(data=request.data)
         if serializer.is_valid():
 
             try:
@@ -117,65 +113,102 @@ class UpdatePin(APIView):
                 Exception("Could not save")
         else:
             Exception("Invalid data")
-        serializer = UserSerializer(users)
+        serializer = serializers.UserSerializer(users)
         return Response(serializer.data)
 
 
 class UpdateEmail(APIView):
     "update a users Email"
 
-    def get_object(self, userId):
+    def get_email(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
-                return user
+                email = models.EmailAddress.objects.get(user=userId)
+                return email
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
-        users = self.get_object(userId)
-        serializer = PersonalDetails(users, data=request.data)
+        email = self.get_email(userId)
+        serializer = serializers.EmailSerializer(email, data=request.data)
         if serializer.is_valid():
             try:
-
-                users.email = request.data['email']
-                users.save()
-
+                email.type = request.data['type']
+                email.email = request.data['email']
+                email.save()
             except:
-                Exception("Could not save")
+                raise Exception("Could not save")
         else:
-            Exception("Invalid data")
-        serializer = UserSerializer(users)
+            raise Exception("Invalid data")
+        serializer = serializers.UpdateEmailSerializer(email)
         return Response(serializer.data)
 
 
 class UpdateUserPhoneNumber(APIView):
     "update a users phone number"
 
-    def get_object(self, userId):
+    def get_object(self, userId, phoneId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
-                return user
+                phone = models.PhoneNumber.objects.get(id=phoneId)
+                return phone
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, userId, format=None):
-        users = self.get_object(userId)
-        serializer = PersonalDetails(users, data=request.data)
+    def put(self, request, userId, phoneId, format=None):
+        phone = self.get_object(userId, phoneId)
+        serializer = serializers.PhoneNumberSerializer(
+            phone, data=request.data)
         if serializer.is_valid():
             try:
-                users.phoneNumber = request.data['phoneNumber']
-                users.save()
+                phone.phoneNumber = request.data['phoneNumber']
+                phone.type = request.data['type']
+                phone.save()
             except:
                 Exception("Could not save")
         else:
             Exception("Invalid data")
-        serializer = UserSerializer(users)
+        serializer = serializers.UpdatePhoneNumberSerializer(phone)
+        return Response(serializer.data)
+
+
+class UpdateUserAddress(APIView):
+    "update a users phone number"
+
+    def get_object(self, userId):
+        try:
+            user = models.Users.objects.get(memberId=userId)
+            if user.isDeleted == False:
+                address = models.Address.objects.get(user=userId)
+                return address
+            else:
+                raise Http404
+        except models.Users.DoesNotExist:
+            raise Http404
+
+    def put(self, request, userId, format=None):
+        address = self.get_object(userId)
+        serializer = serializers.AddressSerializer(
+            address, data=request.data)
+        if serializer.is_valid():
+            try:
+                address.houseNumber = request.data['houseNumber']
+                address.streetName = request.data['streetName']
+                address.city = request.data['city']
+                address.region = request.data['region']
+                address.digitalAdress = request.data['digitalAdress']
+                address.save()
+            except:
+                Exception("Could not save")
+        else:
+            Exception("Invalid data")
+        serializer = serializers.UpdateAddressSerializer(address)
         return Response(serializer.data)
 
 
@@ -184,17 +217,17 @@ class UpdateUser(APIView):
 
     def get_object(self, userId):
         try:
-            user = Users.objects.get(memberId=userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
-        serializer = PersonalDetails(
+        serializer = serializers.PersonalDetails(
             data=request.data)
         if serializer.is_valid():
             try:
@@ -209,71 +242,64 @@ class UpdateUser(APIView):
                 raise Exception('Could not save')
         else:
             raise Exception("Invalid data")
-        serializer = UserSerializer(users)
+        serializer = serializers.UserSerializer(users)
         return Response(serializer.data)
 
 
 class UpdateUserDocuments(APIView):
     "update a users documents"
 
-    def get_object(self, userId):
-        try:
-            user = Users.objects.get(memberId=userId)
-            if user.isDeleted == False:
-                return user
-            else:
-                raise Http404
-        except Users.DoesNotExist:
-            raise Http404
-
     def get_document(self, userId):
         try:
-            user = self.get_object(userId)
+            user = models.Users.objects.get(memberId=userId)
             if user.isDeleted == False:
-                document = Documents.objects.get(user=userId)
+                document = models.Documents.objects.get(user=userId)
                 return document
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, userId, format=None):
         document = self.get_document(userId)
-        users = self.get_object(userId)
-        serializer = UserSerializer(users, data=request.data)
+        serializer = serializers.DocumentsSerializer(
+            document, data=request.data)
         if serializer.is_valid():
-            document.ghanaCardNumber = request.data['documents']['ghanaCardNumber']
-            document.frontCardPic = request.data['documents']['frontCardPic']
-            document.backCardPic = request.data['documents']['backCardPic']
-            document.save()
+            try:
+                document.ghanaCardNumber = request.data['ghanaCardNumber']
+                document.frontCardPic = request.data['frontCardPic']
+                document.backCardPic = request.data['backCardPic']
+                document.save()
+            except:
+                raise Exception('Could not save')
         else:
-            Exception("Invalid data")
-        serializer = UserSerializer(users)
+            raise Exception("Invalid data")
+        serializer = serializers.UpdateDocumentsSerializer(document)
         return Response(serializer.data)
 
 
 class RequestList(APIView):
     def get_user(self, request):
         try:
-            user = Users.objects.get(memberId=request.data['memberId'])
+            user = models.Users.objects.get(memberId=request.data['memberId'])
             if user.isDeleted == False:
                 return user
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def get(self, request, format=None):
-        requests = Request.objects.filter(isDeleted=False)
-        serializer = RequestSerializer(requests, many=True)
+        requests = models.Request.objects.filter(isDeleted=False)
+        serializer = serializers.RequestSerializer(requests, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = RequestSerializer(data=request.data)
+        serializer = serializers.RequestSerializer(data=request.data)
         user = self.get_user(request)
         if serializer.is_valid():
             serializer.save()
-            filtered_requests = Request.objects.filter(
+            filtered_requests = models.Request.objects.filter(
                 memberId=user.memberId, isDeleted=False)
             array = []
             for filtered_request in filtered_requests:
@@ -289,47 +315,47 @@ class RequestById(APIView):
 
     def get_object(self, requestId):
         try:
-            request_obeject = Request.objects.get(
+            request_obeject = models.Request.objects.get(
                 requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
                 raise Http404
-        except Request.DoesNotExist:
+        except models.Request.DoesNotExist:
             raise Http404
 
     def get(self, request, requestId, format=None):
         request_object = self.get_object(requestId)
-        serializer = RequestSerializer(request_object)
+        serializer = serializers.RequestSerializer(request_object)
         return Response(serializer.data)
 
 
 class UpdateRequest(APIView):
     def get_object(self, requestId):
         try:
-            request_obeject = Request.objects.get(
+            request_obeject = models.Request.objects.get(
                 requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
                 raise Http404
-        except Request.DoesNotExist:
+        except models.Request.DoesNotExist:
             raise Http404
 
     def get_user(self, requestId):
         try:
             request_object = self.get_object(requestId)
-            user = Users.objects.get(memberId=request_object.memberId)
+            user = models.Users.objects.get(memberId=request_object.memberId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Exception("This user has been deleted")
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Exception("Sorry User details not found")
 
     def put(self, request, requestId, format=None):
         request_object = self.get_object(requestId)
-        serializer = UpdateRequestSerializer(data=request.data)
+        serializer = serializers.UpdateRequestSerializer(data=request.data)
         user = self.get_user(requestId)
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
@@ -344,14 +370,14 @@ class UpdateRequest(APIView):
                 request_object.save()
             except:
                 raise Exception('Could not save')
-            filtered_requests = Request.objects.filter(
+            filtered_requests = models.Request.objects.filter(
                 memberId=user.memberId, isDeleted=False)
             array_request = []
             for filtered_request in filtered_requests:
                 array_request.append(filtered_request.requestId)
             user.requests = array_request
             user.save()
-            serializer = RequestSerializer(request_object)
+            serializer = serializers.RequestSerializer(request_object)
         else:
             raise Exception('invalid data')
         return Response(serializer.data)
@@ -362,24 +388,24 @@ class DeleteRequest(APIView):
 
     def get_object(self, requestId):
         try:
-            request_obeject = Request.objects.get(
+            request_obeject = models.Request.objects.get(
                 requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
                 raise Http404
-        except Request.DoesNotExist:
+        except models.Request.DoesNotExist:
             raise Http404
 
     def get_user(self, requestId):
         try:
             request_object = self.get_object(requestId)
-            user = Users.objects.get(memberId=request_object.memberId)
+            user = models.Users.objects.get(memberId=request_object.memberId)
             if user.isDeleted == False:
                 return user
             else:
                 raise Http404
-        except Users.DoesNotExist:
+        except models.Users.DoesNotExist:
             raise Http404
 
     def put(self, request, requestId, format=None):
@@ -387,12 +413,12 @@ class DeleteRequest(APIView):
         request_object.isDeleted = True
         request_object.save()
         user = self.get_user(requestId)
-        filtered_requests = Request.objects.filter(
+        filtered_requests = models.Request.objects.filter(
             memberId=user.memberId, isDeleted=False)
         array_request = []
         for filtered_request in filtered_requests:
             array_request.append(filtered_request.requestId)
         user.requests = array_request
         user.save()
-        serializer = RequestSerializer(request_object)
+        serializer = serializers.RequestSerializer(request_object)
         return Response(serializer.data)

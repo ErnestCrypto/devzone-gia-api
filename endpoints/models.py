@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 import uuid
 from .utils import custom_id, transaction_id
+from datetime import datetime
 
 TYPE = [("admin", "admin"), ("member", "member"), ("superadmin", "superadmin")]
 MEMBER_TYPE = [("student", "student"), ("nonstudent", "nonstudent")]
@@ -10,6 +11,9 @@ STATUS = [("active", "active"), ("blocked", "blocked"), ("pending", "pending")]
 TRANSACTION_TYPE = [("withdrawal", "withdrawal"), ("investment", "investment")]
 STATUS = [("completed", "completed"),
           ("rejected", "rejected"), ("pending", "pending")]
+
+now = datetime.now()
+dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
 
 
 class Users(models.Model):
@@ -20,7 +24,7 @@ class Users(models.Model):
     type = models.CharField(max_length=255, default='member', choices=TYPE)
     dob = models.CharField(max_length=255, default=None)
     gender = models.CharField(max_length=255, default=None)
-    createdOn = models.DateTimeField(auto_now_add=True)
+    createdOn = models.CharField(max_length=255, default=dt_string)
     pin = models.CharField(max_length=255, default=None)
     username = models.CharField(max_length=255, default=None)
     memberType = models.CharField(
@@ -42,12 +46,12 @@ class Users(models.Model):
         return str(self.memberId)
 
     class Meta:
-        ordering = ['-createdOn']
+        ordering = ['createdOn']
         verbose_name_plural = 'Users'
 
 
 class Address(models.Model):
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         Users, related_name='address', on_delete=models.CASCADE)
     houseNumber = models.CharField(
         max_length=255, default=None)
@@ -71,7 +75,7 @@ class EmailAddress(models.Model):
     user = models.OneToOneField(
         Users, related_name='email', on_delete=models.CASCADE)
     type = models.CharField(
-        max_length=255, default=None, null=True, blank=True)
+        max_length=255, default='secondary', null=True, blank=True)
     email = models.EmailField(default=None)
     isVerified = models.BooleanField(default=False)
 
@@ -86,7 +90,7 @@ class PhoneNumber(models.Model):
     user = models.ForeignKey(
         Users, related_name='phone', on_delete=models.CASCADE)
     type = models.CharField(
-        max_length=255, default=None, null=True, blank=True)
+        max_length=255, default='secondary', null=True, blank=True)
     phoneNumber = models.CharField(
         max_length=255, default=None, null=True, blank=True)
     isVerified = models.BooleanField(default=False)
@@ -124,7 +128,7 @@ class Transactions(models.Model):
         Users, related_name="users_transactions", on_delete=models.CASCADE)
     type = models.CharField(max_length=255, default=None,
                             choices=TRANSACTION_TYPE)
-    createdOn = models.DateTimeField(auto_now_add=True)
+    createdOn = models.CharField(max_length=255, default=dt_string)
     status = models.CharField(
         max_length=255, default='pending', choices=STATUS)
     amount = models.CharField(max_length=255, default='0.00')
@@ -137,8 +141,7 @@ class Transactions(models.Model):
 class Request(models.Model):
     requestId = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
-    createdOn = models.DateTimeField(
-        auto_now_add=True)
+    createdOn = models.CharField(max_length=255, default=dt_string)
     updateOn = models.CharField(
         max_length=255, default=None, blank=True, null=True)
     status = models.CharField(
@@ -153,3 +156,11 @@ class Request(models.Model):
 
     def __str__(self):
         return str(self.requestId)
+
+
+class Activities(models.Model):
+
+    verbose_name_plural = 'Activities'
+
+    def __str__(self):
+        return str(self.id)

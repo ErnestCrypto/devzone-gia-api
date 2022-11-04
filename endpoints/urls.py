@@ -6,14 +6,17 @@ app_name = "endpoints"
 
 
 urlpatterns = [
-    path('user/', views.CreateUser.as_view()),
     path('users/', views.UsersList.as_view()),
     path('user/<str:userId>/', views.UsersById.as_view()),
     path('user/update/<str:userId>/', views.UpdateUser.as_view()),
     path('user/updatePin/<str:userId>/', views.UpdatePin.as_view()),
-    path('user/updateEmail/<str:userId>/', views.UpdateEmail.as_view()),
-    path('documents/update/<str:userId>/', views.UpdateUserDocuments.as_view()),
-    path('user/updatePhone/<str:userId>/',
+    path('user/updateEmail/<str:userId>/',
+         views.UpdateEmail.as_view()),
+    path('user/updateAddress/<str:userId>/',
+         views.UpdateUserAddress.as_view()),
+    path('documents/update/<str:userId>/',
+         views.UpdateUserDocuments.as_view()),
+    path('user/updatePhone/<str:userId>/<str:phoneId>/',
          views.UpdateUserPhoneNumber.as_view()),
     path('user/delete/<str:userId>/', views.DeleteUser.as_view()),
     path('user/recover/<str:userId>/', views.RecoverUser.as_view()),
