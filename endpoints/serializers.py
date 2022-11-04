@@ -1,7 +1,33 @@
 # writing our serializer classes to
 from dataclasses import field
 from rest_framework import serializers
-from .models import Request, Users, Transactions, Documents
+from .models import Request, Users, Transactions, Documents, PhoneNumber, EmailAddress, Address
+
+
+class EmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailAddress
+        fields = (
+            'type',
+            'email'
+        )
+
+
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = ('type',
+                  'phoneNumber')
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ('houseNumber',
+                  'streetName',
+                  'city',
+                  'region',
+                  'digitalAdress')
 
 
 class DocumentsSerializer(serializers.ModelSerializer):
@@ -19,7 +45,10 @@ class PersonalDetails(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = EmailSerializer(many=False)
     documents = DocumentsSerializer(many=False)
+    phone = PhoneNumberSerializer(many=True)
+    address = AddressSerializer(many=True)
 
     class Meta:
         model = Users
@@ -30,13 +59,13 @@ class UserSerializer(serializers.ModelSerializer):
                   'dob',
                   'gender',
                   'createdOn',
-                  'email',
                   'pin',
-                  'phoneNumber',
+                  'email',
+                  'phone',
+                  'address',
                   'username',
                   'memberType',
                   'profileImage',
-                  'emailVerified',
                   'status',
                   'transactions',
                   'requests',
@@ -46,13 +75,25 @@ class UserSerializer(serializers.ModelSerializer):
                   'withdrawalMade',
                   'requestsMade',
                   'isDeleted',
-                  'documents'
+                  'documents',
+
+
                   )
 
     def create(self, validated_data):
         documents_data = validated_data.pop('documents')
+        emails_data = validated_data.pop('email')
+        address_data = validated_data.pop('address')
+        phone_data = validated_data.pop('phone')
+
         user = Users.objects.create(**validated_data)
         Documents.objects.create(user=user, **documents_data)
+        EmailAddress.objects.create(user=user, **emails_data)
+
+        for p_data in phone_data:
+            PhoneNumber.objects.create(user=user, **p_data)
+        for a_data in address_data:
+            Address.objects.create(user=user, **a_data)
 
         return user
 

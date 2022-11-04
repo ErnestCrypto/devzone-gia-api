@@ -26,6 +26,7 @@ class CreateUser(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -304,10 +305,10 @@ class RequestById(APIView):
 
 
 class UpdateRequest(APIView):
-    def get_object(self, request):
+    def get_object(self, requestId):
         try:
             request_obeject = Request.objects.get(
-                requestId=request.data['requestId'])
+                requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
@@ -315,9 +316,9 @@ class UpdateRequest(APIView):
         except Request.DoesNotExist:
             raise Http404
 
-    def get_user(self, request):
+    def get_user(self, requestId):
         try:
-            request_object = self.get_object(request)
+            request_object = self.get_object(requestId)
             user = Users.objects.get(memberId=request_object.memberId)
             if user.isDeleted == False:
                 return user
@@ -326,10 +327,10 @@ class UpdateRequest(APIView):
         except Users.DoesNotExist:
             raise Exception("Sorry User details not found")
 
-    def put(self, request, format=None):
-        request_object = self.get_object(request)
+    def put(self, request, requestId, format=None):
+        request_object = self.get_object(requestId)
         serializer = UpdateRequestSerializer(data=request.data)
-        user = self.get_user(request)
+        user = self.get_user(requestId)
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
         if serializer.is_valid():
@@ -359,10 +360,10 @@ class UpdateRequest(APIView):
 class DeleteRequest(APIView):
     "delete request"
 
-    def get_object(self, request):
+    def get_object(self, requestId):
         try:
             request_obeject = Request.objects.get(
-                requestId=request.data['requestId'])
+                requestId=requestId)
             if request_obeject.isDeleted == False:
                 return request_obeject
             else:
@@ -370,9 +371,9 @@ class DeleteRequest(APIView):
         except Request.DoesNotExist:
             raise Http404
 
-    def get_user(self, request):
+    def get_user(self, requestId):
         try:
-            request_object = self.get_object(request)
+            request_object = self.get_object(requestId)
             user = Users.objects.get(memberId=request_object.memberId)
             if user.isDeleted == False:
                 return user
@@ -381,11 +382,11 @@ class DeleteRequest(APIView):
         except Users.DoesNotExist:
             raise Http404
 
-    def put(self, request, format=None):
-        request_object = self.get_object(request)
+    def put(self, request, requestId, format=None):
+        request_object = self.get_object(requestId)
         request_object.isDeleted = True
         request_object.save()
-        user = self.get_user(request)
+        user = self.get_user(requestId)
         filtered_requests = Request.objects.filter(
             memberId=user.memberId, isDeleted=False)
         array_request = []

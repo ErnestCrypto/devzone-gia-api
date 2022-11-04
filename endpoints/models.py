@@ -21,15 +21,12 @@ class Users(models.Model):
     dob = models.CharField(max_length=255, default=None)
     gender = models.CharField(max_length=255, default=None)
     createdOn = models.DateTimeField(auto_now_add=True)
-    email = models.EmailField(default=None)
     pin = models.CharField(max_length=255, default=None)
-    phoneNumber = models.CharField(max_length=255, default=None)
     username = models.CharField(max_length=255, default=None)
     memberType = models.CharField(
         max_length=255, default=None, choices=MEMBER_TYPE)
     profileImage = models.CharField(
         max_length=255, default=None, blank=True, null=True)
-    emailVerified = models.BooleanField(default=False, editable=False)
     status = models.CharField(
         max_length=255, choices=STATUS, default='pending')
     transactions = models.TextField(blank=True, default='[]', null=True)
@@ -49,15 +46,67 @@ class Users(models.Model):
         verbose_name_plural = 'Users'
 
 
+class Address(models.Model):
+    user = models.ForeignKey(
+        Users, related_name='address', on_delete=models.CASCADE)
+    houseNumber = models.CharField(
+        max_length=255, default=None)
+    streetName = models.CharField(
+        max_length=255, default=None)
+    city = models.CharField(
+        max_length=255, default=None)
+    region = models.CharField(
+        max_length=255, default=None)
+    digitalAdress = models.CharField(
+        max_length=255, default=None)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name_plural = 'Addresses'
+
+
+class EmailAddress(models.Model):
+    user = models.OneToOneField(
+        Users, related_name='email', on_delete=models.CASCADE)
+    type = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
+    email = models.EmailField(default=None)
+    isVerified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name_plural = 'Emails'
+
+
+class PhoneNumber(models.Model):
+    user = models.ForeignKey(
+        Users, related_name='phone', on_delete=models.CASCADE)
+    type = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
+    phoneNumber = models.CharField(
+        max_length=255, default=None, null=True, blank=True)
+    isVerified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        verbose_name_plural = 'Phone'
+
+
 class Documents(models.Model):
     user = models.OneToOneField(
         Users, related_name='documents', on_delete=models.CASCADE)
     ghanaCardNumber = models.CharField(
-        max_length=255, default=None, null=True, blank=True)
+        max_length=255, default=None)
     frontCardPic = models.CharField(
-        max_length=255, default=None, null=True, blank=True)
+        max_length=255, default=None)
     backCardPic = models.CharField(
-        max_length=255, default=None, null=True, blank=True)
+        max_length=255, default=None)
 
     def __str__(self):
         return str(self.id)

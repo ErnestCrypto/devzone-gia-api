@@ -1,6 +1,35 @@
 from django.contrib import admin
-from .models import Users, Transactions, Request, Documents
+from .models import Users, Transactions, Request, Documents, PhoneNumber, EmailAddress, Address
 # Register your models here.
+
+
+@admin.register(PhoneNumber)
+class PhoneNumberAdmin(admin.ModelAdmin):
+    list_display = ['user',
+                    'type',
+                    'phoneNumber',
+                    'isVerified'
+                    ]
+
+
+@admin.register(EmailAddress)
+class EmailAdressAdmin(admin.ModelAdmin):
+    list_display = ['user',
+                    'type',
+                    'email',
+                    'isVerified'
+                    ]
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ['user',
+                    'houseNumber',
+                    'streetName',
+                    'city',
+                    'region',
+                    'digitalAdress'
+                    ]
 
 
 @admin.register(Users)
@@ -14,13 +43,10 @@ class UserAdmin(admin.ModelAdmin):
         'dob',
         'gender',
         'createdOn',
-        'email',
         'pin',
-        'phoneNumber',
         'username',
         'memberType',
         'profileImage',
-        'emailVerified',
         'status',
         'transactions',
         'requests',
