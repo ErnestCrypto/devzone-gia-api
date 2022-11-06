@@ -1,7 +1,19 @@
 # writing our serializer classes to
 from dataclasses import field
 from rest_framework import serializers
-from .models import Request, Users, Transactions, Documents, PhoneNumber, EmailAddress, Address
+from .models import Request, Users, Transactions, Documents, PhoneNumber, EmailAddress, Address, Activities
+
+
+class ActivitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activities
+        exclude = ('user',)
+
+
+class GetActivitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activities
+        fields = '__all__'
 
 
 class EmailSerializer(serializers.ModelSerializer):
@@ -63,6 +75,7 @@ class UserSerializer(serializers.ModelSerializer):
     documents = DocumentsSerializer(many=False)
     address = AddressSerializer(many=False)
     phone = PhoneNumberSerializer(many=True)
+    activities = ActivitiesSerializer(many=True)
 
     class Meta:
         model = Users
@@ -90,6 +103,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'requestsMade',
                   'isDeleted',
                   'documents',
+                  'activities',
 
 
                   )

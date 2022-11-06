@@ -137,6 +137,10 @@ class Transactions(models.Model):
     def __str__(self):
         return str(self.transcationId)
 
+    class Meta:
+        ordering = ['createdOn']
+        verbose_name_plural = 'Transactions'
+
 
 class Request(models.Model):
     requestId = models.UUIDField(
@@ -159,8 +163,16 @@ class Request(models.Model):
 
 
 class Activities(models.Model):
+    user = models.ForeignKey(
+        Users, related_name='activities', on_delete=models.CASCADE, default=None, blank=True, null=True)
+    name = models.CharField(
+        max_length=255, default=None, blank=True, null=True)
+    createdOn = models.CharField(
+        max_length=255, default=dt_string, blank=True, null=True)
 
-    verbose_name_plural = 'Activities'
+    class Meta:
+        ordering = ['-id']
+        verbose_name_plural = 'Transactions'
 
     def __str__(self):
         return str(self.id)

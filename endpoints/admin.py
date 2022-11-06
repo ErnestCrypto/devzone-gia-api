@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Transactions, Request, Documents, PhoneNumber, EmailAddress, Address
+from .models import Users, Transactions, Request, Documents, PhoneNumber, EmailAddress, Address, Activities
 # Register your models here.
 
 
@@ -94,3 +94,11 @@ class RequestAdmin(admin.ModelAdmin):
                     'type',
                     'isDeleted',
                     ]
+
+
+@admin.register(Activities)
+class ActivitiesAdmin(admin.ModelAdmin):
+    list_display = ['id',
+                    'user',
+                    'createdOn',
+                    'name', ]

@@ -21,10 +21,12 @@ urlpatterns = [
     path('user/delete/<str:userId>/', views.DeleteUser.as_view()),
     path('user/recover/<str:userId>/', views.RecoverUser.as_view()),
     path('requests/', views.RequestList.as_view()),
-    path('requests/create/', views.RequestList.as_view()),
+    path('request/create/', views.RequestList.as_view()),
     path('request/<str:requestId>/', views.RequestById.as_view()),
     path('request/update/<str:requestId>/', views.UpdateRequest.as_view()),
     path('request/delete/<str:requestId>/', views.DeleteRequest.as_view()),
+    path('activities/<str:userId>/', views.UserActivityById.as_view()),
+
 
 
 

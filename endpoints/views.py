@@ -20,8 +20,11 @@ class UsersList(APIView):
     def post(self, request, format=None):
         serializer = serializers.UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except:
+                raise Exception('Could not create user')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -60,10 +63,19 @@ class DeleteUser(APIView):
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
-        users.isDeleted = True
-        users.save()
-        serializer = serializers.UserSerializer(users)
-        return Response(serializer.data)
+        try:
+            users.isDeleted = True
+            users.save()
+            activities = models.Activities.objects.create(
+                user=users, name='Deleted User Account successfully')
+            activities.save()
+            serializer = serializers.UserSerializer(users)
+            return Response(serializer.data)
+        except:
+            activities = models.Activities.objects.create(
+                user=users, name='Failed to delete user account')
+            activities.save()
+            raise Exception("could not delete user")
 
 
 class RecoverUser(APIView):
@@ -81,10 +93,19 @@ class RecoverUser(APIView):
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
-        users.isDeleted = False
-        users.save()
-        serializer = serializers. UserSerializer(users)
-        return Response(serializer.data)
+        try:
+            users.isDeleted = False
+            users.save()
+            activities = models.Activities.objects.create(
+                user=users, name='Recovered account successfully')
+            activities.save()
+            serializer = serializers. UserSerializer(users)
+            return Response(serializer.data)
+        except:
+            activities = models.Activities.objects.create(
+                user=users, name='Failed to recover account')
+            activities.save()
+            raise Exception('could not recover account')
 
 
 class UpdatePin(APIView):
@@ -108,8 +129,14 @@ class UpdatePin(APIView):
             try:
                 users.pin = request.data['pin']
                 users.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user pin successfully')
+                activities.save()
 
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user pin')
+                activities.save()
                 Exception("Could not save")
         else:
             Exception("Invalid data")
@@ -133,13 +160,20 @@ class UpdateEmail(APIView):
 
     def put(self, request, userId, format=None):
         email = self.get_email(userId)
+        users = models.Users.objects.get(memberId=userId)
         serializer = serializers.EmailSerializer(email, data=request.data)
         if serializer.is_valid():
             try:
                 email.type = request.data['type']
                 email.email = request.data['email']
                 email.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user email successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user email')
+                activities.save()
                 raise Exception("Could not save")
         else:
             raise Exception("Invalid data")
@@ -163,6 +197,7 @@ class UpdateUserPhoneNumber(APIView):
 
     def put(self, request, userId, phoneId, format=None):
         phone = self.get_object(userId, phoneId)
+        users = models.Users.objects.get(memberId=userId)
         serializer = serializers.PhoneNumberSerializer(
             phone, data=request.data)
         if serializer.is_valid():
@@ -170,7 +205,13 @@ class UpdateUserPhoneNumber(APIView):
                 phone.phoneNumber = request.data['phoneNumber']
                 phone.type = request.data['type']
                 phone.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user phone number successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user phone number')
+                activities.save()
                 Exception("Could not save")
         else:
             Exception("Invalid data")
@@ -194,6 +235,7 @@ class UpdateUserAddress(APIView):
 
     def put(self, request, userId, format=None):
         address = self.get_object(userId)
+        users = models.Users.objects.get(memberId=userId)
         serializer = serializers.AddressSerializer(
             address, data=request.data)
         if serializer.is_valid():
@@ -204,7 +246,13 @@ class UpdateUserAddress(APIView):
                 address.region = request.data['region']
                 address.digitalAdress = request.data['digitalAdress']
                 address.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user address successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user address')
+                activities.save()
                 Exception("Could not save")
         else:
             Exception("Invalid data")
@@ -238,7 +286,13 @@ class UpdateUser(APIView):
                 users.memberType = request.data['memberType']
                 users.profileImage = request.data['profileImage']
                 users.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user account successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user account')
+                activities.save()
                 raise Exception('Could not save')
         else:
             raise Exception("Invalid data")
@@ -262,6 +316,7 @@ class UpdateUserDocuments(APIView):
 
     def put(self, request, userId, format=None):
         document = self.get_document(userId)
+        users = models.Users.objects.get(memberId=userId)
         serializer = serializers.DocumentsSerializer(
             document, data=request.data)
         if serializer.is_valid():
@@ -270,7 +325,13 @@ class UpdateUserDocuments(APIView):
                 document.frontCardPic = request.data['frontCardPic']
                 document.backCardPic = request.data['backCardPic']
                 document.save()
+                activities = models.Activities.objects.create(
+                    user=users, name='Updated user documents successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=users, name='Failed to update user documents')
+                activities.save()
                 raise Exception('Could not save')
         else:
             raise Exception("Invalid data")
@@ -298,15 +359,24 @@ class RequestList(APIView):
         serializer = serializers.RequestSerializer(data=request.data)
         user = self.get_user(request)
         if serializer.is_valid():
-            serializer.save()
-            filtered_requests = models.Request.objects.filter(
-                memberId=user.memberId, isDeleted=False)
-            array = []
-            for filtered_request in filtered_requests:
-                array.append(filtered_request)
-            user.requests = array
-            user.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                filtered_requests = models.Request.objects.filter(
+                    memberId=user.memberId, isDeleted=False)
+                array = []
+                for filtered_request in filtered_requests:
+                    array.append(filtered_request)
+                user.requests = array
+                user.save()
+                activities = models.Activities.objects.create(
+                    user=user, name='Made a request successfully')
+                activities.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except:
+                activities = models.Activities.objects.create(
+                    user=user, name='Request failed')
+                activities.save()
+                raise Exception('Could not make the request')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -368,16 +438,23 @@ class UpdateRequest(APIView):
                 request_object.reason = request.data['reason']
                 request_object.type = request.data['type']
                 request_object.save()
+                filtered_requests = models.Request.objects.filter(
+                    memberId=user.memberId, isDeleted=False)
+                array_request = []
+                for filtered_request in filtered_requests:
+                    array_request.append(filtered_request.requestId)
+                user.requests = array_request
+                user.save()
+                serializer = serializers.RequestSerializer(request_object)
+                activities = models.Activities.objects.create(
+                    user=user, name='Update request successfully')
+                activities.save()
             except:
+                activities = models.Activities.objects.create(
+                    user=user, name='Failed to update request')
+                activities.save()
                 raise Exception('Could not save')
-            filtered_requests = models.Request.objects.filter(
-                memberId=user.memberId, isDeleted=False)
-            array_request = []
-            for filtered_request in filtered_requests:
-                array_request.append(filtered_request.requestId)
-            user.requests = array_request
-            user.save()
-            serializer = serializers.RequestSerializer(request_object)
+
         else:
             raise Exception('invalid data')
         return Response(serializer.data)
@@ -410,15 +487,60 @@ class DeleteRequest(APIView):
 
     def put(self, request, requestId, format=None):
         request_object = self.get_object(requestId)
-        request_object.isDeleted = True
-        request_object.save()
         user = self.get_user(requestId)
-        filtered_requests = models.Request.objects.filter(
-            memberId=user.memberId, isDeleted=False)
-        array_request = []
-        for filtered_request in filtered_requests:
-            array_request.append(filtered_request.requestId)
-        user.requests = array_request
-        user.save()
-        serializer = serializers.RequestSerializer(request_object)
+        try:
+            request_object.isDeleted = True
+            request_object.save()
+
+            filtered_requests = models.Request.objects.filter(
+                memberId=user.memberId, isDeleted=False)
+            array_request = []
+            for filtered_request in filtered_requests:
+                array_request.append(filtered_request.requestId)
+            user.requests = array_request
+            user.save()
+            activities = models.Activities.objects.create(
+                user=user, name='Deleted request successfully')
+            activities.save()
+            serializer = serializers.RequestSerializer(request_object)
+            return Response(serializer.data)
+        except:
+            activities = models.Activities.objects.create(
+                user=user, name='Failed to delete request')
+            activities.save()
+            raise Exception('could not delete request')
+
+
+class ActivityById(APIView):
+    "get a request by Id"
+
+    def get_object(self, activityId):
+        try:
+            activity_object = models.Activities.objects.get(
+                id=activityId)
+            return activity_object
+        except models.Activities.DoesNotExist:
+            raise Http404
+
+    def get(self, request, activityId, format=None):
+        activity_object = self.get_object(activityId)
+        serializer = serializers.GetActivitiesSerializer(activity_object)
+        return Response(serializer.data)
+
+
+class UserActivityById(APIView):
+    "get a request by Id"
+
+    def get_object(self, userId):
+        try:
+            activity_objects = models.Activities.objects.filter(
+                user=userId)
+            return activity_objects
+        except models.Activities.DoesNotExist:
+            raise Http404
+
+    def get(self, request, userId, format=None):
+        activity_objects = self.get_object(userId)
+        serializer = serializers.GetActivitiesSerializer(
+            activity_objects, many=True)
         return Response(serializer.data)
