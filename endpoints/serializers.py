@@ -124,7 +124,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class CreatingUserSerializer(serializers.ModelSerializer):
     email = EmailSerializer(many=False)
     documents = DocumentsSerializer(many=False)
     address = AddressSerializer(many=False)
