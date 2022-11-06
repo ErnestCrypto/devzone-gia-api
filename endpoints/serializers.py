@@ -124,6 +124,58 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class CreateUserSerializer(serializers.ModelSerializer):
+    email = EmailSerializer(many=False)
+    documents = DocumentsSerializer(many=False)
+    address = AddressSerializer(many=False)
+    phone = PhoneNumberSerializer(many=True)
+
+    class Meta:
+        model = Users
+        fields = ('memberId',
+                  'firstname',
+                  'lastname',
+                  'type',
+                  'dob',
+                  'gender',
+                  'createdOn',
+                  'pin',
+                  'email',
+                  'phone',
+                  'address',
+                  'username',
+                  'memberType',
+                  'profileImage',
+                  'status',
+                  'transactions',
+                  'requests',
+                  'transactionsMade',
+                  'totalInvestment',
+                  'withdrawalLimit',
+                  'withdrawalMade',
+                  'requestsMade',
+                  'isDeleted',
+                  'documents',
+
+
+                  )
+
+    def create(self, validated_data):
+        documents_data = validated_data.pop('documents')
+        emails_data = validated_data.pop('email')
+        address_data = validated_data.pop('address')
+        phone_data = validated_data.pop('phone')
+
+        user = Users.objects.create(**validated_data)
+        Documents.objects.create(user=user, **documents_data)
+        EmailAddress.objects.create(user=user, **emails_data)
+        Address.objects.create(user=user, **address_data)
+        for p_data in phone_data:
+            PhoneNumber.objects.create(user=user, **p_data)
+
+        return user
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transactions
