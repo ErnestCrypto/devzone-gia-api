@@ -16,7 +16,6 @@ django-timezone-field==5.0
 djangorestframework==3.14.0
 kombu==5.2.4
 prompt-toolkit==3.0.32
-psycopg2==2.9.5
 psycopg2-binary==2.9.5
 pycodestyle==2.9.1
 python-crontab==2.6.0
