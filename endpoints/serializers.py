@@ -102,6 +102,8 @@ class UserSerializer(serializers.ModelSerializer):
                   'withdrawalMade',
                   'requestsMade',
                   'isDeleted',
+                  'isDeletedOn',
+                  'expireDate',
                   'documents',
                   'activities',
 

@@ -3,7 +3,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 import uuid
 from .utils import custom_id, transaction_id
-from datetime import datetime
+import datetime
+from django.utils import timezone
 
 TYPE = [("admin", "admin"), ("member", "member"), ("superadmin", "superadmin")]
 MEMBER_TYPE = [("student", "student"), ("nonstudent", "nonstudent")]
@@ -12,8 +13,8 @@ TRANSACTION_TYPE = [("withdrawal", "withdrawal"), ("investment", "investment")]
 STATUS = [("completed", "completed"),
           ("rejected", "rejected"), ("pending", "pending")]
 
-now = datetime.now()
-dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+# now = datetime.now()
+# dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
 
 
 class Users(models.Model):
@@ -24,7 +25,7 @@ class Users(models.Model):
     type = models.CharField(max_length=255, default='member', choices=TYPE)
     dob = models.CharField(max_length=255, default=None)
     gender = models.CharField(max_length=255, default=None)
-    createdOn = models.CharField(max_length=255, default=dt_string)
+    createdOn = models.DateTimeField(default=timezone.now)
     pin = models.CharField(max_length=255, default=None)
     username = models.CharField(max_length=255, default=None)
     memberType = models.CharField(
@@ -41,12 +42,14 @@ class Users(models.Model):
     withdrawalMade = models.CharField(max_length=255, default='0')
     requestsMade = models.CharField(max_length=255, default='0')
     isDeleted = models.BooleanField(default=False)
+    isDeletedOn = models.DateTimeField(default=None, null=True, blank=True)
+    expireDate = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         return str(self.memberId)
 
     class Meta:
-        ordering = ['createdOn']
+        ordering = ['-createdOn']
         verbose_name_plural = 'Users'
 
 
@@ -128,7 +131,7 @@ class Transactions(models.Model):
         Users, related_name="users_transactions", on_delete=models.CASCADE)
     type = models.CharField(max_length=255, default=None,
                             choices=TRANSACTION_TYPE)
-    createdOn = models.CharField(max_length=255, default=dt_string)
+    createdOn = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         max_length=255, default='pending', choices=STATUS)
     amount = models.CharField(max_length=255, default='0.00')
@@ -145,7 +148,7 @@ class Transactions(models.Model):
 class Request(models.Model):
     requestId = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
-    createdOn = models.CharField(max_length=255, default=dt_string)
+    createdOn = models.DateTimeField(default=timezone.now)
     updateOn = models.CharField(
         max_length=255, default=None, blank=True, null=True)
     status = models.CharField(
@@ -167,9 +170,7 @@ class Activities(models.Model):
         Users, related_name='activities', on_delete=models.CASCADE, default=None, blank=True, null=True)
     name = models.CharField(
         max_length=255, default=None, blank=True, null=True)
-    createdOn = models.CharField(
-        max_length=255, default=dt_string, blank=True, null=True)
-
+    createdOn = models.DateTimeField(default=timezone.now)
     class Meta:
         ordering = ['-id']
         verbose_name_plural = 'Transactions'

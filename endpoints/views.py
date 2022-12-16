@@ -6,7 +6,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime
+# from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class UsersList(APIView):
@@ -63,8 +64,17 @@ class DeleteUser(APIView):
 
     def put(self, request, userId, format=None):
         users = self.get_object(userId)
+        # now = datetime.now()
+      
+        # dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+        current_date = datetime.now();
         try:
+
+            end_date = current_date + timedelta(days=30)  # Adding 5 days.
+
             users.isDeleted = True
+            users.isDeletedOn = datetime.now()
+            users.expireDate = end_date
             users.save()
             activities = models.Activities.objects.create(
                 user=users, name='Deleted User Account successfully')
@@ -95,6 +105,8 @@ class RecoverUser(APIView):
         users = self.get_object(userId)
         try:
             users.isDeleted = False
+            users.isDeletedOn = None
+            users.expireDate = None
             users.save()
             activities = models.Activities.objects.create(
                 user=users, name='Recovered account successfully')

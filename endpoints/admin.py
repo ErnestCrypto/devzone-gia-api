@@ -56,6 +56,8 @@ class UserAdmin(admin.ModelAdmin):
         'withdrawalMade',
         'requestsMade',
         'isDeleted',
+        'isDeletedOn',
+        'expireDate',
 
     ]
 
