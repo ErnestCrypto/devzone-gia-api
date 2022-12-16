@@ -8,6 +8,6 @@ from datetime import datetime, timedelta
 
 @shared_task(run_every=crontab(seconds=5))
 def deleteAccount():
-    today = 
+    pass
   
   
